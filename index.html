@@ -447,6 +447,19 @@
     #panel.smallMode .bondBox{ height:200px; }
 
     #xapiBase{ display:none!important; }
+
+    /* ✅ Back to Main Menu button (bottom centre, non-blocking) */
+    #mainMenuBtn{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom: calc(10px + env(safe-area-inset-bottom));
+      z-index: 50;
+      padding: 10px 14px;
+      font-size: 12px;
+      border-radius: 14px;
+      backdrop-filter: blur(8px);
+    }
   </style>
 </head>
 
@@ -652,6 +665,9 @@
       </div>
     </div>
   </div>
+
+  <!-- ✅ Back to Main Menu (bottom centre) -->
+  <button class="ghost" id="mainMenuBtn" type="button">⬅ Back to Main Menu</button>
 
   <!-- Sound kit (generic) -->
   <script>
@@ -969,7 +985,47 @@ if(step.id === "finalAns") setVals(G_FINAL, step.val());
       setShowing();
     });
   </script>
+
+  <!-- ✅ Back to Main Menu button wiring + non-blocking adjuster -->
+  <script>
+    (function(){
+      const btn = document.getElementById("mainMenuBtn");
+      const wrap = document.getElementById("stageWrap");
+      if(!btn) return;
+
+      btn.addEventListener("click", ()=>{
+        window.location.href = "https://limkimsze-maker.github.io/P3_Mental_Sum_Challenge/";
+      });
+
+      // Try to keep the button from overlapping the stage (only if space is tight).
+      function adjustIfOverlap(){
+        if(!wrap) return;
+        wrap.style.transform = ""; // reset
+
+        const wr = wrap.getBoundingClientRect();
+        const br = btn.getBoundingClientRect();
+
+        const gapBottom = window.innerHeight - wr.bottom;
+        const need = br.height + 12; // space needed below stage
+        if(gapBottom >= need) return;
+
+        const lift = need - gapBottom;
+        const gapTop = wr.top;
+        const liftClamped = Math.min(lift, Math.max(0, gapTop - 6));
+        if(liftClamped > 0){
+          wrap.style.transform = `translateY(-${liftClamped}px)`;
+        }
+      }
+
+      window.addEventListener("resize", ()=>setTimeout(adjustIfOverlap, 0));
+      if(window.visualViewport){
+        window.visualViewport.addEventListener("resize", ()=>setTimeout(adjustIfOverlap, 0));
+        window.visualViewport.addEventListener("scroll", ()=>setTimeout(adjustIfOverlap, 0));
+      }
+      window.addEventListener("DOMContentLoaded", ()=>setTimeout(adjustIfOverlap, 80));
+    })();
+  </script>
+
   <script src="https://limkimsze-maker.github.io/assets/nav.js"></script>
 </body>
 </html>
-
